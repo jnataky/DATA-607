@@ -1,0 +1,285 @@
+---
+title: "DATA 607 ASSIGNMENT 5"
+author: "Jered Ataky"
+date: "`r Sys.Date()`"
+output: 
+  openintro::lab_report: default
+  html_document:
+    number_sections: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Librairies
+
+```{r}
+library(tidyverse)
+library(kableExtra)
+```
+
+## Load data
+
+
+```{r}
+
+airlines <- read.csv("https://raw.githubusercontent.com/jnataky/DATA-607/master/A5_Data_transformation/airlines_dest.csv")
+```
+
+
+## Data Transformation
+
+### Clean the data frame
+
+
+```{r}
+
+# Get rid of the empty row & reset the index
+
+airlines <- na.omit(airlines)
+row.names(airlines) <- NULL
+```
+
+```{r}
+# Replcae row 2 and 4 by airlines names
+
+airlines[2, "X"] <- "ALASKA"
+airlines[4, "X"] <- "AM WEST"
+```
+
+```{r}
+# Rename the columns names
+
+airlines <- airlines %>%
+  rename(carrier = X, status = X.1, los_angeles = Los.Angeles, phoenix = Phoenix, san_diego = San.Diego,
+         san_francisco = San.Francisco, seattle = Seattle)
+
+```
+
+
+### Tidying the data frame
+
+
+```{r}
+
+# create new variable for destination and number of flights 
+
+airlines <- airlines %>%
+  gather("dest", "n_flights", 3:7)
+
+
+```
+
+```{r}
+
+# Wider the data frame by adding variables "on time" and "delayed"
+
+airlines <- airlines %>%
+  pivot_wider(names_from = "status", values_from = "n_flights")
+
+```
+
+```{r}
+
+# Table for tidy data
+
+
+airlines %>%
+  kbl(caption = "Airlines info", align = 'c') %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+```
+
+## Data Analysis
+
+### Airlines performance
+```{r}
+
+# Create news variables
+
+n_total <- airlines$delayed + airlines$`on time`
+ontime_percent <- round((airlines$`on time` / n_total), 3)
+delayed_percent <- round((airlines$delayed / n_total), 3)
+
+airlines_df <- airlines %>%
+  mutate(n_total, ontime_percent, delayed_percent)
+
+
+airlines_df %>%
+  kbl(caption = "Airlines more info", align = 'c') %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+```
+
+
+### Plotting the airlines performance
+
+### Airlines on time comparison per city
+
+```{r}
+
+on_time1 <- airlines_df%>%
+  group_by(dest, carrier) %>%
+  summarise(ontime_percent)
+
+on_time1 %>%
+  kbl(caption = "On time performance per city", align = 'c') %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+
+```
+
+```{r}
+# Plotting on time performance
+
+ggplot(data = on_time1, aes(x = dest, y = ontime_percent, fill = carrier)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  xlab("City") + ylab("On time % ") + ggtitle("Carriers on time performance per city")
+
+
+```
+
+### Note on airlines on-time performance per city
+
+Alaska performs better than AM West in every single of the five cities.
+
+
+### Overall on-time performance for both airlines
+
+
+```{r}
+
+on_time2 <- airlines_df%>%
+  group_by(carrier) %>%
+  summarise(ontime_mean = mean(ontime_percent))
+
+on_time2 %>%
+  kbl(caption = "Overall on-time performance", align = 'c') %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+
+```
+
+
+
+```{r}
+# Plotting overall on-time performance
+
+ggplot(data = on_time2, aes(x = carrier, y = ontime_mean)) +
+  geom_bar(stat = "identity", width = 0.5, fill = "#b629a0") +
+  xlab("Carrier") + ylab("On-time mean % ") + ggtitle("Overall on-time performance per carrier")
+```
+
+
+### Note on overall on-time performance per carrier
+
+Overall Alaska has more on-time flights than AM West.
+
+
+### A note on discrepancy
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+The overall on-time performance per carrier difference between two carriers is about 6%, 
+and when looking the per city one the difference goes up to about 12% with a lowest of 2%.
+This creates a lack of similarities on that. The difference is varying.
+
+
+</div> \hfill\break
+
+
+## Take Away
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+
+The analyze has shown that Alaska performs better on-time than AM West... 
+Maybe it is because AM West have more flights in major cities than Alaska which cause the delay. 
+Should it be expected ?
+
+Before digging into the conclusion, let have a look on delays 
+and analyze the overall number of flights per city, and see how it goes!
+
+
+
+</div> \hfill\break
+
+
+
+
+### Graphs and insights
+
+
+```{r}
+
+on_time3 <- airlines_df%>%
+  group_by(dest, carrier) %>%
+  summarise(ontime_percent)
+
+# Plotting on time performance
+
+ggplot(data = on_time3, aes(x = dest, y = delayed_percent, fill = carrier)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  xlab("City") + ylab("Delayed  % ") + ggtitle("Carriers delay per city")
+
+
+```
+
+
+```{r}
+
+on_time4 <- airlines_df%>%
+  group_by(dest, carrier) %>%
+  summarise(n_total)
+
+# Plotting on time performance
+
+ggplot(data = on_time4, aes(x = dest, y = n_total, fill = carrier)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  xlab("City") + ylab("Number of flights ") + ggtitle("Number of flights per city")
+
+
+```
+
+### Conclusion
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+
+The two graphs above hve shown something different... That's not what could be expected!
+
+Here's: Looking at the graphs above, we can see that Alaska operates more flights in Seattle and San Francisco,
+but even in Seattle where Alaska has largely more flights than AM West, AM West still have more delay than Alaska.
+And the on-time performance per city graph can also proove it, Alaska flights are more on-time than AM West.
+It is also the case in the cities where AM West operates more flights (Los Angeles, Phoenix, and San Diego), 
+those cities have more delays flights with AM West compared to Alaska... Alaska still better performing than AM West in any condition, that's not number of flights operated in major cities causing delays to AM West. Thus, I will recommend to AM West to work on their reservation system and in their hand when it comes to make a choose between traveling to one the five cities with one of those two airlines , I will suggest Alaska airline to avoid a high potential delay with AM West.
+
+
+
+
+</div> \hfill\break
+
+
+
+
+
+
+
+
+
+
+
