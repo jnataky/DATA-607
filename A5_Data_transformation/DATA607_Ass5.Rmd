@@ -260,13 +260,13 @@ div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
 <div class = "aquamarine">
 
 
-The two graphs above hve shown something different... That's not what could be expected!
+The two graphs above have shown something different... That's not what could be expected!
 
 Here's: Looking at the graphs above, we can see that Alaska operates more flights in Seattle and San Francisco,
 but even in Seattle where Alaska has largely more flights than AM West, AM West still have more delay than Alaska.
-And the on-time performance per city graph can also proove it, Alaska flights are more on-time than AM West.
+And the on-time performance per city graph can also prove it, Alaska flights are more on-time than AM West.
 It is also the case in the cities where AM West operates more flights (Los Angeles, Phoenix, and San Diego), 
-those cities have more delays flights with AM West compared to Alaska... Alaska still better performing than AM West in any condition, that's not number of flights operated in major cities causing delays to AM West. Thus, I will recommend to AM West to work on their reservation system and in their hand when it comes to make a choose between traveling to one the five cities with one of those two airlines , I will suggest Alaska airline to avoid a high potential delay with AM West.
+those cities have more delays flights with AM West compared to Alaska... Alaska still better performing than AM West in any condition. That's not number of flights operated in major cities causing delays to AM West, maybe it is something internal they should work on. So, when it comes to make a choose between Alaska and AM West for a flight to one of those five cities, I will suggest Alaska to avoid more potential arrival delay with AM West.
 
 
 
