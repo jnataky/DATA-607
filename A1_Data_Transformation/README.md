@@ -2,7 +2,7 @@ The goal of this assignment is to give you practice in preparing different datas
 analysis work.
 
 Tasks:
-(1) Choose any three of the “wide” datasets identified in the Week 6 Discussion items. (You may
+Choose any three of the “wide” datasets identified in the Week 6 Discussion items. (You may
 use your own dataset; please don’t use my Sample Post dataset, since that was used in your
 Week 6 assignment!) For each of the three chosen datasets:
  Create a .CSV file (or optionally, a MySQL database!) that includes all of the information
