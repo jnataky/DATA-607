@@ -1,0 +1,100 @@
+---
+title: "The best NBA players this season"
+author: "Jered Ataky"
+date: "9/14/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment Summary
+
+### Overview
+This assignment consists of Loading Data into a Data Frame
+We needed to Write code in R Markdown to import results for analysis.
+
+As a big fan of NBA, I chose to explore the article about
+"The NBA best players this season, according to RAPTOR"
+
+This article can be found in full below:
+https://projects.fivethirtyeight.com/2020-nba-player-ratings/
+
+### Procedure
+As the results should be published in rpubs.com and GitHub, 
+I loaded the file from its repository in GitHub and did some anaysis.
+
+The data contained one observation with missing values 
+(this was only Malik Newman who actually plays for the Turkish Super League)
+so I used na.omit function to remove it.
+
+### Conclusion
+James Harden is likely to be the best players of the year although there are
+Kawhi L. and Giannis A. who could be respectively 2nd and 3rd best player
+when you consider the key the measure factor (raptor total) 
+that raptor takes into consideration.
+Raptor total is basically the points above average per 100 possessions 
+added by player on both offense and defense, using both box and on-off 
+components
+
+What I might do to extend this work is the consider some other ranking factors
+a how good the player is defensively and the impact that each of them brings 
+in their respective team. As the playoffs season continue, these numbers can
+change and thethe finalists for the nominee are actually James H, 
+Lebron J (ranked top 4 in raptor total), 
+Giannis A, Kawhi L, is not selected among the three top ones.
+
+
+
+
+Load data from GitHub repository
+
+```{r}
+raw_data <- read.csv(("https://raw.githubusercontent.com/jnataky/The-best-NBA-players-2020/master/latest_RAPTOR_by_player.csv"))
+
+data <-na.omit(raw_data)
+                  
+```
+
+
+Getting insight
+
+```{r}
+
+library(tidyverse)
+glimpse(data)
+```
+
+
+Create new data frame with columns of four ways of ratings
+
+
+```{r subset-data-frame-data-rank}
+
+data_rank <- 
+data %>% select(player_name, war_total, raptor_total, raptor_offense, raptor_defense )
+
+
+```
+
+
+
+
+List top 10 best NBA players of this season by war_total (overall_rank)
+
+```{r arrange-data-rank}
+
+player_rank <- data_rank %>%
+  arrange(desc(war_total))
+
+top_10 <- head(player_rank, 10)
+```
+
+
+```{r top-10-table}
+
+library(knitr)
+
+kable(top_10, caption = "Top 10 NBA best players for this season" )
+```
