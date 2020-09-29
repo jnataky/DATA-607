@@ -51,7 +51,7 @@ Giannis A, Kawhi L, is not selected among the three top ones.
 Load data from GitHub repository
 
 ```{r}
-raw_data <- read.csv(("https://raw.githubusercontent.com/jnataky/The-best-NBA-players-2020/master/latest_RAPTOR_by_player.csv"))
+raw_data <- read.csv(("https://raw.githubusercontent.com/jnataky/DATA-607/master/Ranking_NBA_Players/latest_RAPTOR_by_player.csv"))
 
 data <-na.omit(raw_data)
                   
