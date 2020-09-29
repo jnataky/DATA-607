@@ -1,0 +1,193 @@
+---
+title: "DATA607 - Assignment 3"
+author: "Jered Ataky"
+date: "9/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+This assignment is about R character Manipulation and Date Processing.
+These problems are constructed to help manipulating strings in R.
+
+### Problem 1.
+
+Using the 173 majors listed in fivethirtyeight.com’s College Majors dataset [https://fivethirtyeight.com/features/the-economic-guide-to-picking-a-college-major/], provide code that identifies the majors that contain either "DATA" or "STATISTICS"
+
+#### Solution & Approach:
+Upload dataset to GitHub repository, load it to R then proceed to the analysis. 
+
+```{r}
+# Load data from GitHub
+
+college_majors<-read.csv("https://raw.githubusercontent.com/jnataky/RCharacter_manipulation/master/College_majors.csv")
+
+# Check the columns names in dataframe
+names(college_majors)
+```
+
+```{r}
+# Count unique majors, to ensure no major is repeated
+
+length(unique(college_majors[["Major"]]))
+```
+
+
+```{r}
+# Identify the majors that contain either "DATA" or "STATISTICS" 
+Major<-college_majors$Major
+Major[grepl("DATA|STATISTICS", Major)]
+
+```
+#### Note: 
+
+grepl() function is used to identify majors that contain either "DATA" or "STATISTICS".
+What the function does is that it looks for ('DATA')(any character sequence)('STATISTICS') OR ('STATISTICS')(any character sequence)('DATA').
+
+#### Conclusion: 
+
+From the 173 majors, there are 3 majors containing either "DATA" or "STATISTICS".
+
+
+### Problem 2.
+
+Write code that transforms the data below:
+
+[1] "bell pepper"  "bilberry"     "blackberry"   "blood orange"
+
+[5] "blueberry"    "cantaloupe"   "chili pepper" "cloudberry"  
+
+[9] "elderberry"   "lime"         "lychee"       "mulberry"    
+
+[13] "olive"        "salal berry"
+
+Into a format like this:
+
+c("bell pepper", "bilberry", "blackberry", "blood orange", "blueberry", "cantaloupe", "chili pepper", "cloudberry", "elderberry", "lime", "lychee", "mulberry", "olive", "salal berry")
+
+
+#### Solution & Approach:
+
+Represent the given fruits as a string then convert it to a list following the pattern A-Z
+
+```{r}
+library(stringr)
+# Write a string for fruits
+
+fruits <-'[1] "bell pepper"  "bilberry"     "blackberry"   "blood orange"
+
+[5] "blueberry"    "cantaloupe"   "chili pepper" "cloudberry"  
+
+[9] "elderberry"   "lime"         "lychee"       "mulberry"    
+
+[13] "olive"        "salal berry" '
+
+# Convert str to a list with pattern p
+
+p<-"[A-Za-z]+.?[A-Za-z]+"
+
+fruits<- str_extract_all(fruits, p)
+
+list_fruits <- str_c(fruits, sep = "", collapse = NULL)
+
+list_fruits <-writeLines(list_fruits)
+
+```
+
+
+### Problem 3.
+
+ 
+#### Approach:
+Write in words then illustrate.
+
+Describe, in words, what these expressions will match:
+
+
+```{r}
+# Define group of words, gr:
+ gr <-c("eleven", "bob", "jujube", "church", "pepper", "coool", "monisnotnom")
+
+```
+ 
+
+* (.)\1\1, in str "(.)\\1\\1: It matches words with a character repeated 3 times.
+
+```{r}
+# Example
+
+str_view(gr,"(.)\\1\\1", match = TRUE)
+
+```
+
+
+* "(.)(.)\\2\\1" : It matches words with pair of characters following by the reverse of that same pair of characters.
+```{r}
+# Example
+
+str_view(gr,"(.)(.)\\2\\1", match = TRUE)
+```
+
+
+* (..)\1, in str "(..)\\1: It matches expressions with repeated pair of characters
+```{r}
+str_view(gr,"(..)\\1", match = TRUE)
+
+```
+
+
+* "(.).\\1.\\1": It matches words with 5 characters in which the first, third, and fifth character are the same.(The start, middle, and end character are the same)
+```{r}
+str_view(gr,"(.).\\1.\\1", match = TRUE)
+
+```
+
+* "(.)(.)(.).*\\3\\2\\1": It matches words in which the first 3 characters are followed by any characters then the reverse of the same first 3 characters.
+
+```{r}
+
+ 
+ str_view(gr, "(.)(.)(.).*\\3\\2\\1", match = TRUE)
+ 
+```
+
+### Problem 4.
+
+ 
+#### Approach:
+Use the same list as in problem 3 for illustration.
+
+
+Construct regular expressions to match words that:
+
+* Start and end with the same character.
+
+```{r}
+
+ 
+ str_view(gr, "^(.).*\\1$", match = TRUE)
+ 
+```
+
+
+* Contain a repeated pair of letters (e.g. "church" contains "ch" repeated twice.)
+
+```{r}
+
+ 
+ str_view(gr, "(..).*\\1", match = TRUE)
+ 
+```
+
+* Contain one letter repeated in at least three places (e.g. "eleven" contains three "e"s.)
+
+```{r}
+
+ 
+ str_view(gr, "(.).*\\1.*\\1", match = TRUE)
+ 
+```
