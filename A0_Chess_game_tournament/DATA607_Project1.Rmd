@@ -9,9 +9,6 @@ output:
 ---
 
 
-***Collaborators:*** Dan Rosenfeld, Magnus Skonberg, and Rick Sughrue.
-
-
 
 ## Overview
 
@@ -57,7 +54,7 @@ library(kableExtra)
 
 # Download text file to the local machine
 
-url <- "https://raw.githubusercontent.com/jnataky/DATA606project1/master/tournamentinfo.txt" 
+url <- "https://raw.githubusercontent.com/jnataky/DATA-607/master/A0_Chess_game_tournament/tournamentinfo.txt" 
 chess_txt <- "tournamentinfo.txt"
 
 downloader::download(url, chess_txt)
