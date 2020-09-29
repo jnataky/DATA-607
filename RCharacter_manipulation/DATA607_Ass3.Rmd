@@ -24,7 +24,7 @@ Upload dataset to GitHub repository, load it to R then proceed to the analysis.
 ```{r}
 # Load data from GitHub
 
-college_majors<-read.csv("https://raw.githubusercontent.com/jnataky/RCharacter_manipulation/master/College_majors.csv")
+college_majors<-read.csv("https://raw.githubusercontent.com/jnataky/DATA-607/master/RCharacter_manipulation/College_majors.csv")
 
 # Check the columns names in dataframe
 names(college_majors)
