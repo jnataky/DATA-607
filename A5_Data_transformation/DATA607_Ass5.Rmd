@@ -42,7 +42,7 @@ row.names(airlines) <- NULL
 ```
 
 ```{r}
-# Replcae row 2 and 4 by airlines names
+# Replace rows 2 and 4 by airlines names
 
 airlines[2, "X"] <- "ALASKA"
 airlines[4, "X"] <- "AM WEST"
@@ -153,7 +153,23 @@ Alaska performs better than AM West in every single of the five cities.
 
 on_time2 <- airlines_df%>%
   group_by(carrier) %>%
-  summarise(ontime_mean = mean(ontime_percent))
+  summarise(ontime_wg_mean = mean(ontime_percent))
+
+on_time2 %>%
+  kbl(caption = "Overall on-time performance", align = 'c') %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+
+```
+
+
+
+```{r}
+
+on_time2 <- airlines_df%>%
+  group_by(carrier) %>%
+  summarise(ontime_wg_mean = sum(`on time`) / sum(`on time`, delayed))
 
 on_time2 %>%
   kbl(caption = "Overall on-time performance", align = 'c') %>%
@@ -168,7 +184,7 @@ on_time2 %>%
 ```{r}
 # Plotting overall on-time performance
 
-ggplot(data = on_time2, aes(x = carrier, y = ontime_mean)) +
+ggplot(data = on_time2, aes(x = carrier, y = ontime_wg_mean)) +
   geom_bar(stat = "identity", width = 0.5, fill = "#b629a0") +
   xlab("Carrier") + ylab("On-time mean % ") + ggtitle("Overall on-time performance per carrier")
 ```
@@ -176,7 +192,7 @@ ggplot(data = on_time2, aes(x = carrier, y = ontime_mean)) +
 
 ### Note on overall on-time performance per carrier
 
-Overall Alaska has more on-time flights than AM West.
+Overall AM West has more on-time flights than Alaska Air.
 
 
 ### A note on discrepancy
@@ -187,9 +203,11 @@ div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
 </style>
 <div class = "aquamarine">
 
-The overall on-time performance per carrier difference between two carriers is about 6%, 
-and when looking the per city one the difference goes up to about 12% with a lowest of 2%.
-This creates a lack of similarities on that. The difference is varying.
+When it comes to on-time performance per city for both airlines,
+Alaska Airlines performs better but it is worse in overall on-time performance.
+In per city performance, AM West doesn't perform better than Alaska might be
+due to the number of flights its operates.
+
 
 
 </div> \hfill\break
@@ -202,10 +220,8 @@ div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
 </style>
 <div class = "aquamarine">
 
-
-The analyze has shown that Alaska performs better on-time than AM West... 
-Maybe it is because AM West have more flights in major cities than Alaska which cause the delay. 
-Should it be expected ?
+The analyze has shown some discrepancy when comparing the performance between
+per city and overall performance.
 
 Before digging into the conclusion, let have a look on delays 
 and analyze the overall number of flights per city, and see how it goes!
@@ -260,13 +276,11 @@ div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
 <div class = "aquamarine">
 
 
-The two graphs above have shown something different... That's not what could be expected!
-
-Here's: Looking at the graphs above, we can see that Alaska operates more flights in Seattle and San Francisco,
-but even in Seattle where Alaska has largely more flights than AM West, AM West still have more delay than Alaska.
-And the on-time performance per city graph can also prove it, Alaska flights are more on-time than AM West.
-It is also the case in the cities where AM West operates more flights (Los Angeles, Phoenix, and San Diego), 
-those cities have more delays flights with AM West compared to Alaska... Alaska still better performing than AM West in any condition. That's not number of flights operated in major cities causing delays to AM West, maybe it is something internal they should work on. So, when it comes to make a choose between Alaska and AM West for a flight to one of those five cities, I will suggest Alaska to avoid more potential arrival delay with AM West.
+Here's: Looking at the graphs above, we can see that Alaska operates more flights in Seattle and San Francisco.
+In San Francisco, there is not much of difference in number of flights. This explain why Alaska Airlines beat AM West 
+in per city performance. In the city where AM West operates more flights, it has significantly more flights than Alaska,
+this could explain why there are more delays. But taking into consideration the number of flights AM West operates in these 5 cities, I will recommend AM West to review its reservation system. With that, it will perform way better than Alaska.
+In the other hand, Alaska Airlines needs to review the internal problem that causes flights to delay.
 
 
 
