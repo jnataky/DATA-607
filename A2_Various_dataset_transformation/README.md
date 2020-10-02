@@ -1,8 +1,9 @@
 The goal of this assignment is to give practice in preparing different datasets for downstream
 analysis work.
-tasks:
 
-(1) Choose any three of the “wide” datasets identified in the Week 6 Discussion items. (You may
+Tasks:
+
+Choose any three of the “wide” datasets identified in the Week 6 Discussion items. (You may
 use your own dataset; please don’t use my Sample Post dataset, since that was used in your
 Week 6 assignment!) For each of the three chosen datasets:
  Create a .CSV file (or optionally, a MySQL database!) that includes all of the information
