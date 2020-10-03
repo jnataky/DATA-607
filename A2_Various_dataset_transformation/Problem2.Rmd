@@ -1,0 +1,177 @@
+---
+title: "Problem 2: Happiness Vs GDP"
+author: "Jered Ataky"
+date: "`r Sys.Date()`"
+output: 
+  openintro::lab_report: default
+  html_document:
+    number_sections: yes
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Background
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+This dataset was posted by Magnus Skonberg on week 5 discussion board in DATA 607.
+The entire document about it can be found in this link:
+https://www.kaggle.com/unsdsn/world-happiness
+
+The proposed analysis is: 
+
+Compare the (Happiness) Score and GDP per capita for the Top 20 countries 
+to observe the correlation (if there is any).
+
+Thus I will based my analysis in 2019 data.
+
+</div> \hfill\break
+
+
+## Libraries
+
+```{r}
+
+library(tidyverse)
+library(kableExtra)
+library(Hmisc)
+```
+
+
+## Data Transformation
+
+
+### Data insights and cleansing 
+
+```{r}
+# Get the data
+
+data <- read.csv("https://raw.githubusercontent.com/jnataky/DATA-607/master/A2_Various_dataset_transformation/happy_data2019.csv")
+
+```
+
+```{r}
+# make a copy of the data frame 
+
+data_copy <- data
+
+dim(data_copy)
+
+```
+
+```{r}
+
+# Get the insights
+
+head(data_copy)
+
+```
+
+```{r}
+# Check for missing values
+
+sum(is.na(data_copy))
+
+```
+
+
+```{r}
+# Retrieve columns names
+
+colnames(data_copy)
+
+```
+
+```{r}
+# Rename columns
+
+data_copy <- data_copy %>%
+  rename(rank = Overall.rank, country = Country.or.region, happiness_score = Score, GDP_per_capita =  GDP.per.capita, freedom = Freedom.to.make.life.choices, generosity = Generosity, corruption = Perceptions.of.corruption)
+
+```
+
+### Tidying data 
+
+```{r}
+# make a copy of data set
+data_copy1 <- data_copy
+
+```
+
+
+```{r}
+# create new data frame with necessary variables for analysis
+
+data1 <- data_copy1 %>%
+  select(country, happiness_score, GDP_per_capita)
+
+```
+
+```{r}
+# select top 20 countries
+
+data2 <- head(data1, 20)
+```
+
+```{r}
+data2 %>%
+  kbl(caption = "Countries rank for Happiness & GDP per capita", align = 'c') %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+```
+
+
+## Data Analysis
+
+```{r}
+
+ggplot(data = data2) +
+  geom_point(mapping = aes(x = GDP_per_capita, y = happiness_score, color = country)) +
+  geom_smooth(mapping = aes( x = GDP_per_capita, y = happiness_score), se = FALSE, color = "red")
+
+
+```
+
+There is not a linear relationship between GDP_per_capita and happiness
+or it is just a very small association between GDP per capita and
+happiness.
+
+Let calculate to verify this by calculation:
+
+```{r}
+
+cor(data2$GDP_per_capita, data2$happiness_score)
+
+```
+
+
+## Findings
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+
+As Rousseau write in 1750: "Money buys everything, except morality and citizens."
+Used ironically as "MONEY CAN'T BUY HAPPINESS"...   
+
+We can confirm from this analysis that money can't buy happiness as there is very 
+small association between GDP per capita and happiness.
+
+
+
+</div> \hfill\break
+
+
+
+
