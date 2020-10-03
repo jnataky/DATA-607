@@ -44,7 +44,6 @@ parental level of education, and lunch cost. We can see if these variables affec
 
 library(tidyverse)
 library(kableExtra)
-library(tibble)
 ```
 
 ## Data Transformation
