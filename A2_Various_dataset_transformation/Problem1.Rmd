@@ -1,0 +1,307 @@
+---
+title: "Problem 1: Student Performance"
+author: "Jered Ataky"
+date: "`r Sys.Date()`"
+output: 
+  openintro::lab_report: default
+  html_document:
+    number_sections: yes
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Background
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+This dataset was posted by Jered Ataky on week 5 discussion board in DATA 607.
+The entire document about it can be found in this link:
+https://www.kaggle.com/spscientist/students-performance-in-exams
+
+The proposed analyses were:
+
+- Correlation between students performance and parental level of education.
+
+-if scores can be predicted based on the other variables such as test preparation, 
+parental level of education, and lunch cost. We can see if these variables affect the scores and build a model.  
+
+-We can also see if some scores are correlated with each other, such as reading and writing. 
+
+
+</div> \hfill\break
+
+
+## Libraries
+
+```{r}
+
+library(tidyverse)
+library(kableExtra)
+library(tibble)
+```
+
+## Data Transformation
+
+### Data insights and cleansing 
+
+```{r}
+# Get the data
+
+data <- read.csv("https://raw.githubusercontent.com/jnataky/DATA-607/master/A2_Various_dataset_transformation/students_performance.csv")
+
+```
+
+```{r}
+# make a copy of the data frame 
+
+data_copy <- data
+
+dim(data_copy)
+
+```
+
+```{r}
+head(data_copy)
+
+```
+
+
+```{r}
+# Retrieve columns names
+
+colnames(data_copy)
+
+```
+
+
+```{r}
+# Check for missing values
+
+sum(is.na(data_copy))
+
+```
+```{r}
+# Rename columns
+
+data_copy <- data_copy %>%
+  rename(parent_level = parental.level.of.education, lunch = lunch, prep_test = test.preparation.course, math =  math.score, reading = reading.score, writing = writing.score)
+
+head(data_copy)
+
+
+```
+
+### Tidying the data frame
+
+#### Subset data frame in 3 for further analysis
+
+```{r}
+# another copy
+
+data_copy1 <- data_copy
+
+```
+
+
+```{r}
+
+# Subset for parent_level and tests score
+
+data_1 <- data_copy1[c(3,6:8)]
+head(data_1)
+```
+
+```{r}
+# Check different parent_level
+
+unique(data_1$parent_level)
+
+```
+
+```{r}
+# Gather columns
+
+data_1 <- data_1 %>%
+  gather("test", "score", 2:4)
+
+```
+
+```{r}
+# Wider the data frame
+
+data_1 <- data_1 %>%
+  group_by(parent_level, test) %>%
+  summarise(average_score = round(mean(score), 0))
+
+
+```
+
+```{r}
+
+# Kable for tidy table
+
+data_1 %>%
+  kbl(caption = "Test score mean with parent level of education", align = 'c') %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+```
+
+
+```{r}
+
+# Subset for lunch and tests score
+
+data_2 <- data_copy1[c(4,6:8)]
+```
+
+```{r}
+# Check different type of lunch
+
+unique(data_2$lunch)
+
+```
+
+```{r}
+# Gather columns
+
+data_2 <- data_2 %>%
+  gather("test", "score", 2:4)
+
+```
+
+```{r}
+# Wider the data frame
+
+data_2 <- data_2 %>%
+  group_by(lunch, test) %>%
+  summarise(average_score = round(mean(score), 0))
+
+```
+
+```{r}
+
+# Kable for tidy table
+
+data_2 %>%
+  kbl(caption = "Test score mean with type of lunch offered to students", align = 'c') %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+```
+
+
+```{r}
+
+# Subset for test_prep and tests score
+
+data_3 <- data_copy1[c(5:8)]
+```
+
+
+```{r}
+# Gather columns
+
+data_3 <- data_3 %>%
+  gather("test", "score", 2:4)
+
+```
+
+
+```{r}
+# Wider the data frame
+
+data_3 <- data_3 %>%
+  group_by(prep_test, test) %>%
+  summarise(average_score = round(mean(score), 0))
+
+```
+
+
+```{r}
+
+# Kable for tidy table
+
+data_3 %>%
+  kbl(caption = "Test score mean with type of lunch offered to students", align = 'c') %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+```
+
+
+## Data Analysis
+
+### Correlation between parental level of education and tests score
+
+```{r}
+
+ggplot(data = data_1) +
+  geom_bar( mapping = aes(x = reorder(parent_level, average_score), y = average_score, fill = test), position = "dodge", stat = "identity") +
+  facet_wrap(~ test, nrow = 3)
+
+```
+
+There is a positive correlation between parent level of education 
+and students performance.
+
+
+### Correlation between lunch and tests score
+
+
+```{r}
+
+ggplot(data = data_2) +
+  geom_bar( mapping = aes(x = reorder(lunch, average_score), y = average_score, fill = test), position = "dodge", stat = "identity", width = 0.5) +
+  facet_wrap(~ test, nrow = 3)
+
+```
+Students with standard lunch perform better than students with free/reduced lunch 
+
+
+### Correlation between test preparation and tests score
+
+```{r}
+
+ggplot(data = data_3) +
+  geom_bar( mapping = aes(x = reorder(prep_test, average_score), y = average_score, fill = test), position = "dodge", stat = "identity", width = 0.5) +
+  facet_wrap(~ test, nrow = 3)
+
+```
+There is a positive correlation between completing test preparation and not completing
+for all the 3 tests.
+
+
+## Findings
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+
+As we can see from analyses above, students performance are correlated to each of these three 
+factors: parent level of education, lunch, and test preparation.
+
+For parent level of education, the more the parents have a higher education 
+the more students performed on all of the tests. This is maybe certain students tend to 
+challenge themselves to their parents. Also something interesting is that 
+the average performance for students whose parents level is "some high school" perform
+better than students whose parents completed high school.
+
+In regards to lunch, seems like parent income affect students performance in tests.
+
+For test preparation, this is sort of expected that students preparing for tests 
+perform better although we can find some particular cases out there.
+
+
+
+</div> \hfill\break
