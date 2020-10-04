@@ -1,0 +1,238 @@
+---
+title: "Problem 3: World food-feed production"
+author: "Jered Ataky"
+date: "`r Sys.Date()`"
+output: 
+  openintro::lab_report: default
+  html_document:
+    number_sections: yes
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Background
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+This dataset was posted by Rachel Greenlee on week 5 discussion board in DATA 607.
+The data set includes food and feed production by country and food item 
+from 1961 to 2013, including geocoding. 
+The entire document about it can be found in this link:
+https://www.kaggle.com/dorbicycle/world-foodfeed-production
+
+The proposed analyses (taken and modified from the post): 
+
+
+-Focus in on a specific country and see change over time over items .
+
+-Compare food and feed on an item.
+
+
+</div> \hfill\break
+
+
+## Libraries
+
+```{r}
+
+library(tidyverse)
+library(kableExtra)
+```
+
+
+## Data Transformation
+
+
+### Data insights and cleansing 
+
+```{r}
+# Get the data
+
+raw_data <- read.csv("https://raw.githubusercontent.com/jnataky/DATA-607/master/A2_Various_dataset_transformation/FAO.csv")
+
+```
+
+```{r}
+# make a copy of the data frame 
+
+copy_1 <- raw_data
+
+# Get the insights
+
+head(copy_1)
+
+```
+
+
+
+```{r}
+# Retrieve columns names
+
+colnames(copy_1)
+
+```
+
+```{r}
+# New data set for only china
+
+china_data <- copy_1 %>%
+  filter(Area.Abbreviation == "CHN")
+
+```
+
+```{r}
+
+# Consider top 3 products
+
+china_data1 <- china_data %>%
+  head(3)
+
+```
+
+```{r}
+
+# Drop unnecessary columns
+
+china_data2 <- china_data1 [-c(2:4, 6, 8:10)]
+
+```
+
+
+### Tidying the data frame
+
+```{r}
+
+# Make a copy of data frame
+
+china1 <- china_data2
+
+
+# Get rid of Area abbreviation
+
+china1 <- china1[-c(1)]
+# Gather the data
+
+china1 <- china1 %>%
+  gather("Year", "n_production", 3:55)
+
+  
+```
+
+#### Subset data frame in 3 for further analysis
+
+##### Wheat and products
+
+```{r}
+
+china1_w <- china1 %>%
+  filter(Item == "Wheat and products")
+
+# Arrange Year variable
+
+china1_w$Year <- seq(1961,2013)
+
+```
+
+
+```{r}
+
+# Kable for tidy table
+
+china1_w %>%
+  kbl(caption = "China' Number of production of Wheat and products from 1961 to 2013", align = 'c') %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+```
+
+
+#### Rice (Milled Equivalent)
+
+```{r}
+
+china1_r <- china1 %>%
+  filter(Item == "Rice (Milled Equivalent)")
+
+#Gather data
+
+china1_r <- china1_r %>%
+  pivot_wider(names_from = Element, values_from = n_production)
+
+
+# Arrange Year variable
+
+china1_r$Year <- seq(1961,2013)
+
+```
+
+```{r}
+
+# Kable for tidy table
+
+china1_r %>%
+  kbl(caption = " Tab2. China' Number of production of rice (Milled equivalent) from 1961 to 2013", align = 'c') %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+```
+
+
+## Data Analysis
+
+###  Wheat and products food production over time 
+
+```{r}
+
+# Plot Wheat and products food production over time 
+
+ggplot( data = china1_w) +
+  geom_line( mapping = aes(x = Year, y = n_production), color = "red") +
+  labs(title ="China' Wheat and products food production over time")
+
+
+```
+
+Wheat and products have been increasing signifantly over the time
+
+
+###  Rice (Milled equivalent) food production over time 
+
+```{r}
+
+# Plot Wheat and products food production over time 
+
+ggplot( data = china1_r) +
+  geom_line( mapping = aes(x = Year, y = Food), color = "red") +
+  labs(title ="China' rice (Milled equivalent) production over time")
+
+
+```
+Rice (food) production has been wavering and increasing over time. 
+(Rice feed not even produced (See Tab2) over the time). 
+
+
+## Take Away
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+In China, the wheat and products production over time has increased and
+seems to develop more in years to come. In the other side, rice who was a big 
+production for China around late 60s to around early 90s started decreasing 
+tremendously in the point where it reached the lower production in the past
+50 years. While rice (food), still have some production, the feed doesn't have any
+production since 1979 (see Tab2).
+
+
+
+</div> \hfill\break
