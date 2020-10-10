@@ -1,0 +1,180 @@
+---
+title: "DATA 607 ASSIGNMENT 7"
+author: "Jered Ataky"
+date: "`r Sys.Date()`"
+output: 
+  openintro::lab_report: default
+  html_document:
+    number_sections: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+I used Dreamwaever to create three different files in HTML, XML, and JSON
+formats. These files are tables containing exact same information, which are 
+the title, authors, edition, publisher, and publication year of three of 
+my favorite books in learning data science. Note that two of my three books have 
+two authors.
+
+I will load these files into 3 three different data frames and then compare them
+two by two to check their similarity and difference in R if there is any, and 
+will share the findings.
+
+</div> \hfill\break
+
+
+## Libraries
+
+```{r}
+
+library(XML)
+library(jsonlite)
+library(RCurl)
+
+library(tidyverse)
+library(kableExtra)
+
+```
+
+## Data & Data frames
+
+### Get URL
+
+```{r}
+
+html_url <- "https://raw.githubusercontent.com/jnataky/DATA-607/master/Web_technologies/books_html.html"
+
+xml_url <- "https://raw.githubusercontent.com/jnataky/DATA-607/master/Web_technologies/books_xml.xml"
+
+json_url <- "https://raw.githubusercontent.com/jnataky/DATA-607/master/Web_technologies/books_json.json"
+
+```
+
+### Load files
+
+#### HTML
+
+```{r}
+
+file_html <- getURL(html_url)
+
+df_html <- readHTMLTable(file_html, which =1)
+
+# Kable for tidy table
+
+df_html %>%
+  kbl(caption = "My Favorite books") %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+```
+
+
+#### XML
+
+```{r}
+
+file_xml <- getURL(xml_url)
+
+df_xml <- xmlToDataFrame(file_xml)
+
+
+# Kable for tidy table
+
+df_xml %>%
+  kbl(caption = "My Favorite books") %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+```
+
+
+
+#### JSON
+
+```{r}
+
+df_json <- as.data.frame(fromJSON(json_url))
+
+```
+
+```{r}
+# Change columns names to match others
+
+names(df_json) <- c("Title", "Authors", "Edition", "Publisher", "Publication_Year")
+
+# Kable for tidy table
+
+df_json %>%
+  kbl(caption = "My Favorite books") %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+```
+
+## Comparison
+
+
+```{r}
+
+# HTML & XML
+
+all.equal(df_html, df_xml)
+
+```
+
+```{r}
+
+# HTML & JSON
+
+all.equal(df_html, df_json)
+
+```
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+Since the two first comparisons are true, 
+we can say that all three frame have the same contents 
+(after renaming to json data frame columns as the structure looked different
+from the others). They look the same but the internal structure might be different.
+
+Find more info on those formats in the Findings section below.
+
+</div> \hfill\break
+
+
+## Findings
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+This practice on these different data exchange formats bring to this conclusion: 
+
+The native structure of HTML does not naturally map into R objects. 
+We can import HTML files as raw text, but this deprives us of the most useful features of these documents.
+And XML is a more generic counterpart to HTML and a frequently used format to exchange data on the Web.
+In the other hand, JSON is more lightweight due to its less verbose syntax and only allows a limited
+set of data types that are compatible with many programming languages.
+
+Source: Munzert, S. (2015). Automated Data Collection with R: A practical guide to web scraping and text mining. Chichester: Wiley.
+
+</div> \hfill\break
+
+- 
