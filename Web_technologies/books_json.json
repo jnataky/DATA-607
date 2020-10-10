@@ -1,0 +1,28 @@
+{
+    "mybooks-table": {
+        "mybooks": [
+	
+            {
+                "Title": "Understandable Statistics",
+                "Authors": "Charles H. Brase and Corrinne P. Brase",
+                "Edition": "Twelfth",
+		"Publisher": "Cengage Learning",
+		"Publication_Year": "2018"
+            },
+            {
+		"Title": "Hands-On Machine Learning with Scikit-Learn and TensorFlow",
+		"Authors": "Aurelien Geron",
+		"Edition": "First",
+		"Publisher": "O'Reilly",
+		"Publication_Year": "2017"
+            },
+	    {
+		"Title": "Data Science for Business",
+		"Authors": "Foster Provost and Tom Fawcett",
+		"Edition": "First",
+		"Publisher": "O'Reilly",
+		"Publication_Year": "2013"
+            }
+        ]
+    }
+}
