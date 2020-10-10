@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mybooks-table>
+	<mybooks>
+		<Title>Understandable Statistics</Title>
+		<Authors>Charles H. Brase and Corrinne P. Brase</Authors>
+		<Edition>Twelfth</Edition>
+		<Publisher>Cengage Learning</Publisher>
+		<Publication_Year>2018</Publication_Year>
+	</mybooks>
+	<mybooks>
+		<Title>Hands-On Machine Learning with Scikit-Learn and TensorFlow</Title>
+		<Authors>Aurelien Geron</Authors>
+		<Edition>First</Edition>
+		<Publisher>O'Reilly</Publisher>
+		<Publication_Year>2017</Publication_Year>
+	</mybooks>
+	<mybooks>
+		<Title>Data Science for Business</Title>
+		<Authors>Foster Provost and Tom Fawcett</Authors>
+		<Edition>First</Edition>
+		<Publisher>O'Reilly</Publisher>
+		<Publication_Year>2013</Publication_Year>
+	</mybooks>
+</mybooks-table>
