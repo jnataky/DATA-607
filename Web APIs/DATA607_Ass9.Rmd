@@ -1,0 +1,113 @@
+---
+title: "Web APIs"
+author: "Jered Ataky"
+date: "2020-10-23"
+output: 
+  openintro::lab_report: default
+  html_document:
+    number_sections: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+**Problem**
+
+The New York Times web site provides a rich set of APIs, as described here: https://developer.nytimes.com/apis
+I need to start by signing up for an API key.
+My task is to choose one of the New York Times APIs, construct an interface in R to read in the JSON data, and
+transform it into an R DataFrame.
+
+**Approach**
+
+The New York Times API that interested me the most was "Books API".
+After requesting the API key, I was able to access it in R. 
+I extracted the data of "hardcover fiction books" from the books API, and this was in JSON format. 
+I then used "fromjson" to convert the JSON data to R objects.
+
+Since "fromjson" converts the JSON data and includes the list of the object related to it,
+I retrieved only the data frame containing all the books info that I need.
+
+</div> \hfill\break
+
+## Packages
+
+```{r load-packages, message=FALSE}
+
+library(httr)
+library(jsonlite)
+library(tidyverse)
+library(kableExtra)
+
+```
+
+
+## Read the API
+
+```{r}
+# Read JSON data from the API with the key
+
+books <-"https://api.nytimes.com/svc/books/v3/lists/current/hardcover-fiction.json?api-key=s6WdQYAxrWRmhzTGoytPJplwgWujefbc"
+
+```
+
+## Convert R objects from JSON
+
+```{r}
+
+# Transform JSON data into an R DataFrame
+# Retrieve the data frame of books data
+
+df <- fromJSON(books)[[5]][[11]]
+dim(df)
+```
+
+```{r}
+
+# Get the insights
+
+glimpse(df)
+```
+
+
+
+```{r}
+
+# New DataFrame  with some necessary columns from the original df
+# (for analysis purpose)
+
+df1 <- df[c("rank", "publisher", "title", "author", "primary_isbn13")]
+
+df1 %>%
+  kbl(caption = "Hardcover fiction books") %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+```
+
+
+## Findings
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+
+
+If you have access to it, API makes it easier on getting directly the data you'd want...
+
+</div> \hfill\break
+
+
+
+
