@@ -94,6 +94,42 @@ df1 %>%
 ```
 
 
+
+## Extra
+
+```{r}
+
+# Publisher df. Order books by publisher
+
+df_pub <- df1 %>%
+  group_by(publisher) %>%
+  summarise(books_published = n())
+
+df_pub <- df_pub[order(-df_pub$books_published), ]
+
+
+# Plot the ranked books by publisher
+# (Visualize which publisher has more books in the ranking)
+
+df_pub %>%
+  
+  ggplot(aes(reorder(publisher, books_published), books_published)) +
+  
+  geom_col(aes(fill = books_published)) +
+  
+  scale_fill_gradient2(low = "yellow",
+                       high = "purple",
+                       midpoint = median(df_pub$books_published)) +
+
+  
+coord_polar() +
+
+  
+  labs(title = "Ranked hardcover fiction books by publisher", x = NULL, y = NULL)  
+  
+
+```
+
 ## Findings
 
 
