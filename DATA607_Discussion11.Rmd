@@ -1,0 +1,111 @@
+---
+title: "eBay Recommender Systems"
+author: "Jered Ataky"
+date: "2020-11-04"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Introduction
+
+Having had a bad experience with eBay brought me to read more about the company, 
+understand their targets, how they operate the business as well how their
+recommender systems work.This time and for the purpose of learning 
+(together with the assignment), try to looking at their systems more 
+in a scientific way rather than just as a disappointed customer to gain more 
+insights and make some recommendations.
+
+## Scenario Design
+
+**Who are target users?**
+
+Looking at the wide range of product available at its website, 
+EBay has a very wide range of target users (marketing). Millions of items like 
+collectibles, appliances, computers, equipment and many more miscellaneous items 
+are listed, bought or even sold on a daily basis. 
+Thus, eBay generally target online auction and shopping communities.
+
+
+**What are eBay key goals?**
+
+The overall eBay aims are to increase the gross merchandise volume 
+and net revenues from the eBay marketplace.
+
+eBay's main goals is to augment its revenue from the eBay marketplaces,
+to increase number of customers
+First of all, they 
+
+
+**How can I help them to accomplish those goals?**
+
+eBay’s strategies to provide an online marketplace seems to be chosen correctly. 
+As the “world’s online auction and shopping website. 
+They have been able to direct their strategies toward acquisition, that's it, 
+attracting new users and increase the number of customers. 
+They aim to active more users to bid by imposing alluring regulations, 
+such as lowering fees for listings items and offering proper incentives and 
+discounts for their customers, and they wish to mount up the gross 
+merchandise volume and value of transactions which are conducted by 
+every single active user.This help them to raise the revenue.
+ 
+However, fragility of eBay Inc. endangers company’s performance and profitability. 
+eBay should undertake more precautions monitoring arrangements in order to reduce 
+risk of fraud, since the company is exposed in danger of negative public attention.
+I have a personal experience about it as a their "customer" which I am not anymore. 
+Efficient monitoring is costly as the company has to incur considerable expenses 
+to eliminate deceptive actions, although, innovative security procedures appears 
+to be vital .In addition, eBay should build a great recommender systems which 
+will only suggest significant items to customers and also reduce the possibility 
+of irrelevant recommendations.
+
+
+\clearpage
+----------------------------------------------------------
+
+## Reverse Engineering 
+
+From the site interface, I'd attend to reverse engineer the eBay template.
+Thus, reverse engineering an eBay template from eBay listing. This should be 
+something that larger sellers on eBay should do to allow them not to make 
+every single listing by hand but using tools that are advanced and allowing them
+to focus on each core element of the listing separately. 
+eBay Templates enable businesses that use 3rd party tools to sell on eBay 
+to crucially separate their product data from their eBay templates.
+The fact that some software tools allow you to template the templates,
+the boundaries of what can be done with templating can be taken in a high level.
+One can create some complex structures of product templating & data allowing  
+exceptionally slick data input methods for businesses in the background and 
+what the customer sees as in the eBay listing looking different and way better.
+
+
+## Recommendations
+
+It is understandable that eBay's recommendation systems face challenges since 
+it is a semi-unstructured market place, but they should consider building 
+recommender systems in the way that can find the nearest categories 
+(related categories) constrains the search space of possible recommendation 
+candidate items significantly and also reduces the possibility of irrelevant 
+recommendations. The standard collaborative filtering
+techniques applied in their recommender systems should be more effective.
+
+## References 
+
+Steiner, Ina. “Who Is EBay's Target Customer?” EcommerceBytes, https://www.ecommercebytes.com/C/blog/blog.pl?%2Fpl%2F2014%2F10%2F1414010502.html. 
+
+“Complementary Item Recommendations at EBay Scale.” Tech Blog - EBay Inc., 13 Feb. 2019, https://tech.ebayinc.com/engineering/complementary-item-recommendations-at-ebay-scale/. 
+
+“Ebay Target Market Essay Example.” https://www.majortests.com/essay/Ebay-Target-Market-F3QVNKGQAA.html.
+
+
+"Ebay Objectives And Strategy Information Technology Essay." ukessays.com. 11 2018. UKEssays. 11 2020 <https://www.ukessays.com/essays/information-technology/ebay-objectives-and-strategy-information-technology-essay.php?vref=1>.
+
+Chaffey, Dave, and Expert commentator. “EBay Case Study.” Smart Insights, 25 Oct. 2019, https://www.smartinsights.com/ecommerce/ecommerce-strategy/ebay-case-study-2/. 
+
+
+Ogborne, Matthew. “Reverse Engineering an EBay Template from an EBay Listing Part 1.” The Last Drop of Ink, Matthew Ogborne https://Lastdropofink.co.uk/Wp-Content/Uploads/2015/01/Lastdropofink-Logo-340-v2.Png, 6 Apr. 2015, lastdropofink.co.uk/market-places/ebay/reverse-engineering-an-ebay-template-from-an-ebay-listing-part-1/. 
