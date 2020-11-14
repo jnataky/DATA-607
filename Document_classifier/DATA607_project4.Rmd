@@ -1,0 +1,251 @@
+---
+title: "DATA 607 - Project 4"
+author: "Jered Ataky, Magnus Skonberg"
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+    df_print: paged
+    smooth_scroll: yes
+    toc_collapsed: yes
+    toc_depth: 5
+    toc_float: yes
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: '5'
+    toc_float: yes
+    code_folding: "hide"
+---
+
+```{r echo = FALSE}
+knitr::opts_chunk$set(eval = TRUE, results = TRUE, fig.show = "asis", message = FALSE)
+```
+
+
+```{r load-packages, include=FALSE}
+library(tidyverse)
+library(knitr)
+library(R.utils)
+library(DT)
+library(tm)
+library(wordcloud)
+library(data.table)
+library(e1071)
+library(gmodels)
+```
+
+### Background
+
+The focus of this project is **document classification**. 
+
+For this project, we will start with a corpus dataset, unzip our data, generate a training model that we'll then use to predict the class of new documents (those withheld from the training set or taken from another source), and then analyze the accuracy of our predictive classifier.
+
+### Download Data
+
+We lean on the R.utils library to *automatically* download, bunzip, extract the contents of tar archive into our "emails" directory, and then create a corresponding list of file names from the spam and ham emails available on [spamassassin](https://spamassassin.apache.org/old/publiccorpus/):
+
+```{r}
+#Download, bunzip, and untar spam_2 files into "emails" directory
+#download.file("http://spamassassin.apache.org/old/publiccorpus/20050311_spam_2.tar.bz2", destfile= "20050311_spam_2.tar.bz2")
+#bunzip2("20050311_spam_2.tar.bz2")
+#untar("20050311_spam_2.tar", exdir="emails")
+#Create corresponding list of file names for spam_2 and exclude cmds file
+if (file.exists("emails\\spam_2\\cmds")) file.remove("emails\\spam_2\\cmds")
+spam_list = list.files("emails\\spam_2\\") 
+#Download, bunzip, and untar easy_ham files into "emails" directory
+#download.file("http://spamassassin.apache.org/old/publiccorpus/20030228_easy_ham.tar.bz2", destfile="20030228_easy_ham.tar.bz2")
+#bunzip2("20030228_easy_ham.tar.bz2")
+#untar("20030228_easy_ham.tar", exdir = "emails")
+#Create corresponding list of file names for easy_ham and exclude cmds file
+if (file.exists("emails\\easy_ham\\cmds")) file.remove("emails\\easy_ham\\cmds")
+ham_list = list.files("emails\\easy_ham\\")
+```
+
+As can be noted above, we remove the cmds files prior to creating our corresponding lists and we create our corresponding lists using the list.files() function to produce a character vector of the names of files or directories in the named directory.
+
+*Note: if it's your first time running the code please UNCOMMENT the download.file(), bunzip2(), and untar() portions of the code. Otherwise, comment them out to avoid "file already exists" error messages.*
+
+Check the length of corresponding spam and ham lists:
+
+```{r}
+length(spam_list)
+length(ham_list)
+```
+
+The ham_list contains 2500 emails (64.17% of total) and the spam_list contains 1396 emails (35.85% of total) for a total of 3896 emails that we'll be processing. These values are worth noting as we proceed through the code that follows and especially when we consider naive Bayes later.
+
+Once we have lists of spam and ham emails, we set out to build a dataframe of all emails df_mails and 
+
+```{r}
+# Build data frame
+df_mails <- tibble()
+df_mails_folders <- c("emails\\spam_2\\", "emails\\easy_ham")
+df_mails_types <- c("spam", "ham")
+#Extract type (spam vs. ham) and message of corresponding file to populate df_mails 
+for (i in 1: length(df_mails_folders))
+  
+  {
+        type <- df_mails_types[i] #spam or ham
+        
+        #access files
+        l <- tibble(file = dir(df_mails_folders[i],  full.names = TRUE)) %>% 
+          #read in email messages
+          mutate(messages = map(file, read_lines)) %>%
+                #use file name as id, type as spam / ham, and message as content
+                transmute(id = basename(file), type = type, messages) %>%
+                unnest(messages) #make each element of messages its own row
+                df_mails<- bind_rows(df_mails, l)
+ }
+```
+
+Once we've built out our data frame, we notice that it's HUGE. df_mails contains 389362 observations which was a real pain to process later on so we merged messages based on shared id's (if they came from the same email file):
+
+```{r}
+#Merge messages based on shared ids:
+new_df <- df_mails[!duplicated(df_mails$id), ]
+new_df[, 'messages'] <- aggregate (messages~id, data = df_mails, toString) [,2]
+head(new_df)
+#Subset data frame to only contain type (ham / spam) and message (email content): 
+df_final <- new_df %>%
+  select(type, messages)
+dim(df_final)
+#Randomize our elements for better representation of proportions
+set.seed(1228)
+df_final<- df_final[sample(nrow(df_final)),]
+str(df_final) #observe output
+```
+
+From the above output, we note that our dataframe has proper dimensions: 2 columns (type, message) and 3896 rows (email contents).
+
+Now that we have a data frame with exclusively type and message, we can convert our data frame into a corpus, clean the contents of this corpus and create a document term matrix so that later we can visualize the highest frequency words, train a naive Bayes model and observe the test results of this model ...
+
+### Create and Clean Corpus
+
+We start by creating a corpus of all of our email messages and then we clean the corpus by removing URLs, homogenizing to lower case, removing numbers, removing punctuation, removing stopwords, removing non-word characters, and then stripping white space:
+
+```{r}
+#Create corpus:
+text_corpus <- Corpus(VectorSource(df_final$messages))
+#Initialize clean_corpus by removing non-word characters and URLs:
+clean_corpus <- text_corpus %>%
+  tm_map(content_transformer(gsub), pattern="\\W",replace=" ")
+removeURL <- function(x) gsub("http^\\s\\s*", "", x)%>% 
+  clean_corpus <- tm_map(clean_corpus, content_transformer(removeURL))
+#Clean corpus:
+clean_corpus <- clean_corpus %>%
+  tm_map(tolower) %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(removeWords, stopwords()) %>% 
+  tm_map(stripWhitespace)
+inspect(clean_corpus[1:3])
+```
+Again, we note the proper amount of documents for text_corpus and then observe the sheer size of the email messages we're dealing with. Fortunately there's a means of making sense of these emails.
+
+As a next step, we can create our document term matrix, which is a way of representing the words in clean_corpus as a table (with rows representative of text responses to be analyzed and columns representative of words from the text used in the analysis):
+
+```{r}
+#Create DTM using function:
+dtm <- DocumentTermMatrix(clean_corpus)
+inspect(dtm) #inspect
+```
+
+Note the 100% sparsity. Taking this into account, we then filter our DTM (document term matrix) to reduce sparsity by looking for terms that are in at least ~1% of the documents before inspecting the output:
+
+```{r}
+#Reduce sparsity 
+dtm_filtered <- removeSparseTerms(dtm, 0.99) 
+inspect(dtm_filtered)
+```
+We now have ~95% sparsity and account for 2251 terms rather than more than 95k in the unfiltered DTM.
+
+From this point, we can revisit clean_corpus via visualization. We can make use of the wordcloud() function to visualize the most common 50 words with a minimum count of 1000. Those words are:
+
+```{r}
+#Visualize (ham and spam together) as a wordcloud
+wordcloud(clean_corpus, max.words = 50, random.order = FALSE, min.freq=1000)
+```
+We can note the prominence of words like "received" and "localhost" and jumbled words like "esmtp" and "dogmaslashnullorg" ...
+
+At this point we're ready to enter the final phase. We're ready to ...
+
+
+### Train and Test Data
+
+We're going to apply the naive Bayes classifier.
+
+To steal from [UC Business Analytics' site](https://uc-r.github.io/naive_bayes):
+
+*Although it is often outperformed by other techniques, and despite the naïve design and oversimplified assumptions, this classifier can perform well in many complex real-world problems. And since it is a resource efficient algorithm that is fast and scales well, it is definitely a machine learning algorithm to have in your toolkit.*
+
+First, we divide the corpus into training and test data using a proportion of 80:20. 80% training data, 20$ test dataa. We do so for our "raw" emails (from our data frame df_final), our DTM prior to accounting for sparsity,  and our cleaned corpus of documents.
+
+Because the data was stored randomly, we can simply take the first 80% of our entries as our training set and the remainder as our test set. The initial calculation of the "divider row" has been commented out (at the top of the code):
+
+```{r}
+#Determine 80% of row number:
+##nrow(df_final) #3896
+##round(0.8 * 3896,0) #3117
+df_train <- df_final[1:3117,]
+df_test <- df_final[3118:3896,]
+#print(email_raw_train$type) #verify randomization :)
+#print(email_raw_test$type) #verify randomization
+dtm_train <- dtm[1:3117,] 
+dtm_test <- dtm[3118:3896,]
+#Since corpus is stored as documents:
+corpus_train <- clean_corpus[1:3117]
+corpus_test <- clean_corpus[3118:3896]
+```
+
+Once our data's been divided, we subset our training data based on type (spam vs. ham), identify words that appear at least five times, make use of a simple function convert_count() to detect the presence or absence of each word in a message, and then we apply this function to our training and test data:
+
+```{r}
+#Identify words that appear at least 5 times:
+five_words <- findFreqTerms(dtm_train, 5)
+length(five_words) #how many words are there?
+five_words[1:5] #what are the 1st 5?
+#Create DTMs using frequent words:
+email_train <- DocumentTermMatrix(corpus_train, control=list(dictionary = five_words))
+email_test <- DocumentTermMatrix(corpus_test, control=list(dictionary = five_words))
+#Convert count info to "Yes" or "No"
+convert_count <- function(x) {
+  x <- ifelse(x > 0, "Yes", "No")
+}
+#Convert document-term matrices:
+email_train <- apply(email_train, 2, convert_count) 
+email_test <- apply(email_test, 2, convert_count)
+```
+
+From the outputs above, we see the number of words that appeared at least 5 times and we see the first five words in our corresponding list.
+
+At this point we're ready to apply and evaluate the performance of naive Bayes. First we train the model with our training data (email_train), we verify the class of the assigned variable (email_classifier) and then we evaluate the performance of our model with the associated test data (email_test). The result can be seen below:
+
+```{r}
+#Create naive Bayes classifier object
+email_classifier <- naiveBayes(email_train, factor(df_train$type))
+class(email_classifier) #verify the class of this classifier
+#Evaluate performance on test data
+email_pred <- predict(email_classifier, newdata=email_test)
+table(email_pred, df_test$type)
+```
+
+As you can see above, of our 779 test documents (emails), **84% (394/469) were accurately labeled "ham"** (the ham-ham, 1st row, 1st column entry) and **79% (244/310) were accurately labeled "spam"** (the spam-spam, 2nd row, 2nd column entry).
+
+Upon our first implementation of Bayes our output was only reading ham files. After going back through our code we realized that we had not randomized our input data and thus our training data was reading in primarily spam messages while our test data was only testing ham messages, so we corrected course. 
+
+After doing so, the output format was correct but the accuracy was still low. So we tried varying sparsity (alternating between dtm and dtm_filtered), as well as varying the order of our corpus cleaning functions. Ultimately neither of these alterations improved our accuracy.
+
+We then altered the order of our corpus_clean section, removed the factor() function we'd input to the table() function on the last line, and simplified the convert_count() function to a simple ifelse() statement and voila! the accuracy of our ham filter went from ~13% to 84% and the accuracy of our spam filter dropped from ~90% to 78%. While we aren't sure exactly which of these "fixes" helped improve our accuracy (being that the processing time was quite slow so doing one at a time would have been too time consuming), we do know that the combination worked in improving the overall accuracy of our model.
+
+
+### References
+
+In completing Project 4, we found the following resources useful and applicable:
+
+1. Notre Dame. (2014). **Text mining example: spam filtering** [slide set]. Retrieved from https://www3.nd.edu/~steve/computing_with_data/20_text_mining/text_mining_example.html#/
+
+2. Gorakala, Suresh Kumar. (2013). **Document classification using R** [document]. Retrieved from https://www.r-bloggers.com/2013/07/document-classification-using-r/
+
+3. Kharshit. (2017). **Email spam filtering: Text analysis in R** [sample code]. Retrieved from https://kharshit.github.io/blog/2017/08/25/email-spam-filtering-text-analysis-in-r
