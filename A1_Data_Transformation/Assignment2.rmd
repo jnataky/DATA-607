@@ -1,0 +1,246 @@
+---
+title: "DATA607 ASS2: SQL and R"
+author: "Jered Ataky"
+date: "9/11/2020"
+output: 
+  openintro::lab_report: default
+  html_document:
+    number_sections: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Introduction
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+
+I first created a survey of 6 movies which I have 5 persons responding.
+After saving the survey in csv, I stored the results in MySQL database.
+
+
+</div> \hfill\break
+
+
+
+## Approach
+
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+
+I will analyze the rating of each movie to know what is the most rated movie.
+Then, go through each friend's rating of individual movies and overall rating 
+of movies. This will help me to know what type of the movie the friend likes 
+and if he or she is a fun of movies. Then, after I will recommend a movie 
+if necessary. 
+
+</div> \hfill\break
+
+
+```{r}
+
+# Load the results from MySQL to R
+library(tidyverse)
+library(RMySQL)
+
+```
+
+```{r MSQL}
+
+# Accessing MySQL data base with password stored in a settings file
+
+#rmariadb.settingsfile <- "C:\\data\\credentials.cnf"
+#rmariadb.db <- "credentials"
+#mydb <- dbConnect(RMariaDB::MariaDB(),default.file = rmariadb.settingsfile,group = rmariadb.db)
+
+mydb <-dbConnect(RMariaDB::MariaDB(), user='root', password='mypassword', dbname ='labs', host='localhost')
+
+```
+
+```{r}
+# Store the result in a dataframe movies
+
+movies<- dbGetQuery(mydb, "SELECT * FROM movies")
+```
+
+```{r populate-data-frame}
+library(tidyverse)
+glimpse(movies)
+
+```
+
+## Handle missing values
+
+```{r missing-data}
+# Replace all missing values (a move not seen by a person) by 0
+
+movies[is.na(movies)] = 0
+```
+
+
+```{r summarise-movies}
+summary(movies)
+
+```
+## Best Movie by Average rating
+
+
+```{r movies-rating-average}
+
+movies %>%
+  group_by(Movie_title) %>%
+  summarise(mean_rating = mean(Rating)) %>%
+  arrange(desc(mean_rating))
+  
+```
+
+
+```{r movies-rating-average-plot}
+
+movies %>%
+  group_by(Movie_title) %>%
+  summarise(mean_rating = mean(Rating)) %>%
+  ggplot(., aes(y = Movie_title, x= mean_rating, fill = mean_rating)) + geom_bar(stat = 'identity')
+  
+```
+
+
+## Individual rating by movie
+
+```{r Batila-preference}
+
+# Batila's preference
+
+batila_movie <- movies %>%
+  filter(Friend_name == "Batila")
+
+ggplot(data = batila_movie, aes( y = Movie_title, x = Rating, fill = Rating)) + geom_bar(stat = 'identity')
+
+
+
+```
+
+```{r Musengie-preference}
+
+# Musengie's preference
+
+musengie_movie <- movies %>%
+  filter(Friend_name == "Musengie")
+
+ggplot(data = musengie_movie, aes( y = Movie_title, x = Rating, fill = Rating)) + geom_bar(stat = 'identity')
+
+
+
+```
+
+
+
+```{r Jonathan-preference}
+
+# Jonathan's preference
+
+jonathan_movie <- movies %>%
+  filter(Friend_name == "Jonathan")
+
+ggplot(data = jonathan_movie, aes( y = Movie_title, x = Rating, fill = Rating)) + geom_bar(stat = 'identity')
+
+
+
+```
+
+
+
+```{r Herve-preference}
+
+# Herve's preference
+
+herve_movie <- movies %>%
+  filter(Friend_name == "Herve")
+
+ggplot(data = herve_movie, aes( y = Movie_title, x = Rating, fill = Rating)) + geom_bar(stat = 'identity')
+
+
+```
+
+
+## MaV's preference
+
+```{r MaV-preference}
+MaV_movie <- movies %>%
+  filter(Friend_name == "MaV")
+
+ggplot(data = MaV_movie, aes( y = Movie_title, x = Rating, fill = Rating)) + geom_bar(stat = 'identity')
+
+
+```
+## Each friend's overall rating
+
+```{r}
+
+movies %>%
+  group_by(Friend_name) %>%
+  summarise(mean_rating = mean(Rating)) %>%
+  ggplot(., aes(y = Friend_name, x= mean_rating, fill = mean_rating)) + geom_bar(stat = 'identity')
+```
+
+
+
+## Conclusion & recommendation
+
+<style>
+div.aquamarine { background-color:#7fffd4; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+
+I realized that Batila has watched all the  ovies and his overall rating 
+for those movies were very high. Nothing I can recommend to him from my 
+list of six movies. Musengie had watched 4 out 6 movies but her rating is kind
+of the average so I would to recommend a very good movie to her.
+When it comes to movie, "American son" had an average low rating just because 
+it was watched only by two two people although the friends who'd seen, like it.
+It is a good option to recommend to others.
+
+</div> \hfill\break
+
+
+
+```{r}
+library(kableExtra)
+
+# Construct a table frame for friends and recommended movies
+
+f <- c("Musengie", "Jonathan", "Herve", "MaV")
+m <- c("Six Underground", "American son", "American son", "Spencer confidential")
+
+
+df <- data.frame(f,m)
+
+
+colnames(df) <- c("Friend's name", "Recommended Movie")
+
+
+  
+# Movie recomendation table
+
+df %>%
+  kbl(caption = "Movie recommendation", align = 'c') %>%
+  kable_material(c("striped", "hover")) %>%
+  row_spec(0, color = "indigo")
+
+```
+
+
+
+
